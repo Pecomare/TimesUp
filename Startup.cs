@@ -24,8 +24,24 @@ namespace TimesUp
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-			services.AddDbContextFactory<TimesUpContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("SqlServerDatabase")));
+            switch (Configuration.GetSection("Connection")["DatabaseType"])
+            {
+                case "SqlServer":
+                    services.AddDbContextFactory<TimesUpContext>(options =>
+				        options.UseSqlServer(Configuration.GetConnectionString("SqlServerDatabase")));
+                    break;
+
+                case "Postgres":
+                    services.AddDbContextFactory<TimesUpContext>(options =>
+				        options.UseNpgsql(Configuration.GetConnectionString("PostgresDatabase")));
+                    break;
+                
+                case "Sqlite":
+                    services.AddDbContextFactory<TimesUpContext>(options =>
+				        options.UseSqlite(Configuration.GetConnectionString("SqliteDatabase")));
+                    break;
+            }
+			
 			services.AddEventAggregator();
         }
 
