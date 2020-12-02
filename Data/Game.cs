@@ -155,6 +155,10 @@ namespace TimesUp.Data
 			Card card = CardsToPlay.First();
 			CardsToPlay.Remove(card);
 			FoundCards.Add(card);
+			if (!CardsToPlay.Any() && IsOnLastRound)
+			{
+				End();
+			}
 		}
 
 		public void SkipCard()

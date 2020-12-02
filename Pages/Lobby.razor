@@ -127,19 +127,22 @@ else
 						<button class="btn btn-cancel" @onclick="CardSkipped">Passer</button>
 						<button class="btn btn-accept" @onclick="CardFound">Valider</button>
 					}
-					else if (!Game.HasStillCardsToFind || Game.RemainingSeconds == 0)
+					else if (!Game.HasStillCardsToFind)
+					{
+						<p>Toutes les cartes ont été trouvées</p>
+						<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
+					}
+					else if (Game.RemainingSeconds == 0)
 					{
 						<p>Temps écoulé</p>
 						@if (Game.IsOnLastRound && Game.IsOnLastPlayer)
 						{
+							<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
 							<button class="btn btn-primary" @onclick="ConcludeGame">Terminer la partie</button>
 						}
 						else if (Game.IsOnLastPlayer)
 						{
-							@if (Game.HasStillCardsToFind)
-							{
-								<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
-							}
+							<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
 							<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
 						}
 						else
