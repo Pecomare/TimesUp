@@ -12,7 +12,7 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx${{ github.sha }}
-          restore_keys: |
+          restore-keys: |
             ${{ runner.os }}-buildx-
 
       - name: Check out repo
