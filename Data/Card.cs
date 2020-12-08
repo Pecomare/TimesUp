@@ -6,8 +6,20 @@ namespace TimesUp.Data
 	public class Card
 	{
 		public int Id { get; set; }
-		public string Text1 { get; set; }
-		public string Text2 { get; set; }
-		public Deck Deck { get; set; }
+		public string Text1 { get; set; } = string.Empty;
+		public string Text2 { get; set; } = string.Empty;
+		public Deck? Deck { get; set; }
+
+		public Card()
+		{
+			
+		}
+
+		public Card(Deck? deck, string text)
+		{
+			Deck = deck;
+			Text1 = text;
+			Text2 = string.Empty;
+		}
 	}
 }
