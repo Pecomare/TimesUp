@@ -31,12 +31,14 @@ namespace TimesUp.Data
 		public bool IsOnLastPlayer => CurrentPlayerIndex == PlayerOrder?.Count - 1;
 		public bool IsOnLastRound => RoundNumber == MaximumRoundCount;
 		public bool HasStillCardsToFind => CardsToPlay?.Any() ?? false;
+		public DateTime ModifiedDateTime { get; private set; }
 
 		#region Constructors
 
 		public Game(string name)
 		{
 			Name = name;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		#endregion
@@ -46,6 +48,7 @@ namespace TimesUp.Data
 		public void Rename(string newName)
 		{
 			Name = newName;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void ChangeDeck(Deck deck)
@@ -55,11 +58,13 @@ namespace TimesUp.Data
 				throw new InvalidOperationException("Cannot change deck while game is running.");
 			}
 			Deck = deck;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void SetOwner(string name)
 		{
 			Owner = name;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void Start()
@@ -84,6 +89,7 @@ namespace TimesUp.Data
 			PlayerOrder = PlayerScores.Keys.ToList().Shuffle();
 			State = GameState.RUNNING;
 			RemainingSeconds = TimePerRound;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void End() 
@@ -93,6 +99,7 @@ namespace TimesUp.Data
 				throw new InvalidOperationException("Cannot end a game twice.");
 			}
 			State = GameState.ENDED;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		private void CheckEnded()
@@ -119,6 +126,7 @@ namespace TimesUp.Data
 			{
 				PlayerOrder.Add(name);
 			}
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public bool RemovePlayer(string name)
@@ -133,12 +141,14 @@ namespace TimesUp.Data
 			{
 				isRemoved = isRemoved && PlayerOrder.Remove(name);
 			}
+			ModifiedDateTime = DateTime.Now;
 			return isRemoved;
 		}
 
 		private void GivePointToCurrentPlayer()
 		{
 			PlayerScores[PlayerOrder[CurrentPlayerIndex]]++;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void AcceptCard()
@@ -159,6 +169,7 @@ namespace TimesUp.Data
 			{
 				End();
 			}
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void SkipCard()
@@ -174,6 +185,7 @@ namespace TimesUp.Data
 			Card card = CardsToPlay.First();
 			CardsToPlay.Remove(card);
 			CardsToPlay.Add(card);
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void PerformAnotherRound()
@@ -184,6 +196,7 @@ namespace TimesUp.Data
 			}
 			CurrentPlayerIndex = 0;
 			RemainingSeconds = TimePerRound;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void GoToNextPhase()
@@ -201,6 +214,7 @@ namespace TimesUp.Data
 			CardsToPlay = FoundCards.Shuffle();
 			FoundCards.Clear();
 			RemainingSeconds = TimePerRound;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void GoToNextPlayer()
@@ -216,6 +230,7 @@ namespace TimesUp.Data
 			SkipCard();
 			CurrentPlayerIndex++;
 			RemainingSeconds = TimePerRound;
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		public void DecrementTimer()

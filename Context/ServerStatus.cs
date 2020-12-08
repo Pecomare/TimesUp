@@ -10,7 +10,7 @@ namespace TimesUp
 		private static ServerStatus? STATUS { get; set; }
 		public static ServerStatus GetServerStatus() => STATUS ?? (STATUS = new ServerStatus());
 
-		private List<Game> Games { get; set; } = new List<Game>();
+		public List<Game> Games { get; private set; } = new List<Game>();
 
 		public List<Game> OpenGames => Games.FindAll(Game => Game.State != GameState.ENDED);
 		public List<Game> RunningGames => Games.FindAll(game => game.State == GameState.RUNNING);

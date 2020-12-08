@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -75,34 +77,47 @@ namespace TimesUp
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+			ConfigureGameCleaning();
         }
 
 		private void SetupInMemoryDatabase()
 		{
-			// TODO
 			TimesUpContext context = new TimesUpContext(new DbContextOptionsBuilder<TimesUpContext>()
 				.UseInMemoryDatabase("InMemory")
 				.Options);
 
 			// Decks
-			var deck1 = new Deck { Name = "Deck 1" };
-			var deck2 = new Deck { Name = "Deck 2" };
-			context.Add(deck1);
-			context.Add(deck2);
+			var deckAnime = new Deck("Anime");
+			context.Add(deckAnime);
 
 			// Cards
-			context.Add(new Card { Text1 = "Card 1 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 2 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 3 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 4 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 5 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 6 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 7 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 8 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 9 / Text 1", Deck = deck1 });
-			context.Add(new Card { Text1 = "Card 10 / Text 1", Deck = deck1 });
+			context.Add(new Card(deckAnime, "Toaru Kagaku no Railgun (A Certain Scientific Railgun)"));
 
 			context.SaveChanges();
+		}
+
+		private void ConfigureGameCleaning()
+		{
+			Task.Run(async () => 
+			{
+				ServerStatus status = ServerStatus.GetServerStatus();
+				int removedGameCount;
+				int interval = Configuration.GetValue<int>("GameCleaningInterval");
+				int delayBeforeCleanup = Configuration.GetValue<int>("GameDelayBeforeCleanup");
+				DateTime loopStart;
+				int loopDuration;
+				while (true)
+				{
+					loopStart = DateTime.Now;
+					Console.WriteLine("Removing inactive games.");
+					removedGameCount = status.Games.RemoveAll(game => 
+						(loopStart - game.ModifiedDateTime).TotalMilliseconds >= delayBeforeCleanup);
+					Console.WriteLine($"Removed {removedGameCount} inactive games.");
+					loopDuration = (int)(DateTime.Now - loopStart).TotalMilliseconds;
+					await Task.Delay(interval - loopDuration);
+				}
+			});
 		}
     }
 }
