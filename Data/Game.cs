@@ -8,30 +8,32 @@ namespace TimesUp.Data
 {
 	public class Game
 	{
+		private static readonly List<Card> EMPTY_CARD_LIST = new List<Card>(0);
+
 		public Guid Guid { get; } = Guid.NewGuid();
 		public string Name { get; set; } = string.Empty;
 		public GameState State { get; private set; } = GameState.NEW;
-		public string Owner { get; private set; }
+		public string Owner { get; private set; } = string.Empty;
 		public int MaximumPlayerCount { get; set; } = 10;
-		public Dictionary<string, long> PlayerScores { get; } = new();
+		public List<Player> Players { get; private set; } = new();
 		public int MaximumRoundCount { get; set; } = 2;
 		public int RoundNumber { get; private set; } = 1;
 		public Deck? Deck { get; private set; }
-		public List<Card>? CardsToPlay { get; set; }
-		public Card? CardToPlay => State != GameState.RUNNING
-			? null
-			: CardsToPlay?.FirstOrDefault();
+		public List<Card> CardsToPlay { get; set; } = EMPTY_CARD_LIST;
+		public DateTime ModifiedDateTime { get; private set; }
 		public List<Card> FoundCards { get; } = new();
-		public List<string>? PlayerOrder { get; set; }
 		private int CurrentPlayerIndex { get; set; }
-		public string? CurrentPlayer => PlayerOrder?[CurrentPlayerIndex];
 		public int TimePerRound { get; set; } = 60;
 		public int RemainingSeconds { get; private set; }
 		public bool IsTimeTicking { get; set; } = false;
-		public bool IsOnLastPlayer => CurrentPlayerIndex == PlayerOrder?.Count - 1;
+
+		public Player? CurrentPlayer => Players.ElementAtOrDefault(CurrentPlayerIndex);
+		public bool IsOnLastPlayer => CurrentPlayerIndex == Players.Count - 1;
 		public bool IsOnLastRound => RoundNumber == MaximumRoundCount;
-		public bool HasStillCardsToFind => CardsToPlay?.Any() ?? false;
-		public DateTime ModifiedDateTime { get; private set; }
+		public bool HasStillCardsToFind => CardsToPlay.Any();
+		public Card? CardToPlay => State != GameState.RUNNING
+			? null
+			: CardsToPlay?.FirstOrDefault();
 
 		#region Constructors
 
@@ -51,7 +53,7 @@ namespace TimesUp.Data
 			ModifiedDateTime = DateTime.Now;
 		}
 
-		public void ChangeDeck(Deck deck)
+		public void SetDeck(Deck deck)
 		{
 			if (State != GameState.NEW)
 			{
@@ -59,6 +61,14 @@ namespace TimesUp.Data
 			}
 			Deck = deck;
 			ModifiedDateTime = DateTime.Now;
+		}
+
+		public void SetDeckIfNull(Deck deck)
+		{
+			if (Deck == null)
+			{
+				SetDeck(deck);
+			}
 		}
 
 		public void SetOwner(string name)
@@ -69,7 +79,7 @@ namespace TimesUp.Data
 
 		public void Start()
 		{
-			if (!PlayerScores.Any())
+			if (!Players.Any())
 			{
 				throw new InvalidOperationException("Cannot start a game without players.");
 			}
@@ -86,7 +96,7 @@ namespace TimesUp.Data
 				throw new InvalidOperationException("Cannot start a game twice.");
 			}
 			CardsToPlay = Deck.Cards.Shuffle();
-			PlayerOrder = PlayerScores.Keys.ToList().Shuffle();
+			Players = Players.Shuffle();
 			State = GameState.RUNNING;
 			RemainingSeconds = TimePerRound;
 			ModifiedDateTime = DateTime.Now;
@@ -113,41 +123,43 @@ namespace TimesUp.Data
 		public void AddPlayer(string name)
 		{
 			CheckEnded();
-			if (PlayerScores.ContainsKey(name))
+			if (Players.Any(player => string.Equals(player.Name, name)))
 			{
 				return;
 			}
-			if (PlayerScores.Count == MaximumPlayerCount)
+			if (Players.Count == MaximumPlayerCount)
 			{
 				throw new InvalidOperationException("Cannot exceed player limit.");
 			}
-			PlayerScores.Add(name, 0);
-			if (State == GameState.RUNNING)
-			{
-				PlayerOrder.Add(name);
-			}
+			Players.Add(new Player(name));
 			ModifiedDateTime = DateTime.Now;
 		}
 
 		public bool RemovePlayer(string name)
 		{
 			CheckEnded();
-			if (!PlayerScores.Any())
+			if (!Players.Any())
 			{
 				throw new InvalidOperationException("Cannot remove a player if there isn't any.");
 			}
-			bool isRemoved = PlayerScores.Remove(name);
-			if (State == GameState.RUNNING)
-			{
-				isRemoved = isRemoved && PlayerOrder.Remove(name);
-			}
+			int removedCount = Players.RemoveAll(player => string.Equals(player.Name, name));
 			ModifiedDateTime = DateTime.Now;
-			return isRemoved;
+			return removedCount > 0;
 		}
+
+		public bool IsPlayerInGame(string name) => Players.Any(player => string.Equals(player.Name, name));
 
 		private void GivePointToCurrentPlayer()
 		{
-			PlayerScores[PlayerOrder[CurrentPlayerIndex]]++;
+			if (State != GameState.RUNNING)
+			{
+				throw new InvalidOperationException("Cannot give point while game is not running.");
+			}
+			if (CurrentPlayer == null)
+			{
+				throw new InvalidOperationException("Cannot give point without any player.");
+			}
+			CurrentPlayer.Score++;
 			ModifiedDateTime = DateTime.Now;
 		}
 
@@ -223,7 +235,7 @@ namespace TimesUp.Data
 			{
 				throw new InvalidOperationException("Cannot go to next player if game is not running.");
 			}
-			if (CurrentPlayerIndex == PlayerScores?.Count - 1)
+			if (CurrentPlayerIndex == Players.Count - 1)
 			{
 				throw new InvalidOperationException("Last player already played.");
 			}

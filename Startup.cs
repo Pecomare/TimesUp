@@ -101,7 +101,7 @@ namespace TimesUp
 		{
 			Task.Run(async () => 
 			{
-				ServerStatus status = ServerStatus.GetServerStatus();
+				ServerStatus status = ServerStatus.STATUS;
 				int removedGameCount;
 				int interval = Configuration.GetValue<int>("GameCleaningInterval");
 				int delayBeforeCleanup = Configuration.GetValue<int>("GameDelayBeforeCleanup");

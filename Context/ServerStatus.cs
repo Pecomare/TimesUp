@@ -7,8 +7,7 @@ namespace TimesUp
 {
 	public class ServerStatus
 	{
-		private static ServerStatus? STATUS { get; set; }
-		public static ServerStatus GetServerStatus() => STATUS ?? (STATUS = new ServerStatus());
+		public static ServerStatus STATUS { get; set; } = new ServerStatus();
 
 		public List<Game> Games { get; private set; } = new List<Game>();
 
@@ -24,8 +23,12 @@ namespace TimesUp
 			return game;
 		}
 
-		public bool RemoveGameById(Guid guid) => RemoveAllGamesById(guid) > 0;
-
-		public int RemoveAllGamesById(Guid guid) => Games.RemoveAll(game => game.Guid == guid);
+		public Game CreateGame(string name, string owner)
+		{
+			Game game = CreateGame(name);
+			game.SetOwner(owner);
+			game.AddPlayer(owner);
+			return game;
+		}
 	}
 }

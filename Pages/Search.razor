@@ -1,0 +1,36 @@
+﻿@page "/Search"
+
+@using Data
+
+@inherits SearchComponent
+
+<h1>Trouver une partie</h1>
+<label for="nickname">Pseudo</label>
+<input type="text" id="nickname" @bind="Nickname" />
+<label for="searchtext">Nom de la partie</label>
+<input type="text" id="searchtext" @bind="SearchText" />
+<button class="btn btn-primary" @onclick="SearchGame">Chercher</button>
+<div style="text-align: -webkit-center">
+	<table style="margin: auto">
+		<tr>
+			<th>GUID</th>
+			<th>Nom</th>
+			<th>Nombre de joueurs</th>
+			<th>Etat</th>
+			<th></th>
+		</tr>
+		@foreach (Game game in ServerStatus.STATUS.OpenGames)
+		{
+			<tr>
+				<td>@game.Guid</td>
+				<td>@game.Name</td>
+				<td>@game.Players.Count / @game.MaximumPlayerCount</td>
+				<td>@game.State</td>
+				<td>@if (game.Players.Count < @game.MaximumPlayerCount)
+				{
+					<button class="btn btn-primary" @onclick="@(() => JoinGame(game))">Rejoindre</button>	
+				}</td>
+			</tr>
+		}
+	</table>
+</div>

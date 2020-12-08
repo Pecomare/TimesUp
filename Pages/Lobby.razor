@@ -1,176 +1,87 @@
 ﻿@page "/Game/{Guid:guid}/{Nickname}"
-@page "/Game"
 
 @using Data
 
 @inherits LobbyComponent
 
-<h1>@ErrorMessage</h1>
+<h1>Partie @Game.Name (@Guid)</h1>
+<h2>Etat: @Game.State</h2>
+<h3>Joueurs: @Game.Players.Count / @Game.MaximumPlayerCount</h3>
 
-@if (Game == null)
-{
-	<h1>Trouver une partie</h1>
-	<label for="nickname">Pseudo</label>
-	<input type="text" id="nickname" @bind="Name" />
-	<label for="gamename">Nom de la partie</label>
-	<input type="text" id="gamename" @bind="GameName" />
-	<button class="btn btn-primary" @onclick="CreateGame">Créer une partie</button>
-	<div style="text-align: -webkit-center">
-		<table style="margin: auto">
+<h3>Deck: @Game.Deck?.Name</h3>
+<span>Phase @Game.RoundNumber / @Game.MaximumRoundCount</span>
+<div>
+	<table style="margin: auto">
+		<tr>
+			<th>Nom</th>
+			<th>Score</th>
+		</tr>
+		@foreach (Player player in Game.Players)
+		{
 			<tr>
-				<th>GUID</th>
-				<th>Nom</th>
-				<th>Nombre de joueurs</th>
-				<th>Etat</th>
-				<th></th>
+				<td>@player.Name</td>
+				<td>@player.Score</td>
 			</tr>
-			@foreach (Game game in ServerStatus.GetServerStatus().OpenGames)
-			{
-				<tr>
-					<td>@game.Guid</td>
-					<td>@game.Name</td>
-					<td>@game.PlayerScores.Count / @game.MaximumPlayerCount</td>
-					<td>@game.State</td>
-					<td>@if (game.PlayerScores.Count < @game.MaximumPlayerCount)
-					{
-						<button class="btn btn-primary" @onclick="@(() => JoinGame(game))">Rejoindre</button>	
-					}</td>
-				</tr>
-			}
-		</table>
-	</div>
-}
-else
-{
-	<h1>Partie @Game.Name (@Guid)</h1>
-	<h2>Etat: @Game.State</h2>
-	<h3>Joueurs: @Game.PlayerScores.Count / @Game.MaximumPlayerCount</h3>
-	@switch (Game.State)
+		}
+	</table>
+	<span>Joueur en cours: @Game.CurrentPlayer</span>
+	<span style="font-weight: bold">Cartes trouvées durant la phase</span>
+	<ul style="list-style-type: none">
+		@foreach (Card card in Game.FoundCards)
+		{
+			<li>@card.Text1</li>
+		}
+	</ul>
+	@if (string.Equals(Game.CurrentPlayer?.Name, Nickname))
 	{
-		case GameState.NEW:
-			@if (string.Equals(Name, Game.Owner) || string.Equals(Nickname, @Game.Owner))
+		@if (Game.IsTimeTicking && Game.HasStillCardsToFind)
+		{
+			<p>Temps restant: @Game.RemainingSeconds</p>
+			<p>@Game.CardToPlay?.Text1</p>
+			<button class="btn btn-cancel" @onclick="CardSkipped">Passer</button>
+			<button class="btn btn-accept" @onclick="CardFound">Valider</button>
+		}
+		else if (!Game.HasStillCardsToFind)
+		{
+			<p>Toutes les cartes ont été trouvées</p>
+			<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
+		}
+		else if (Game.RemainingSeconds == 0)
+		{
+			<p>Temps écoulé</p>
+			@if (Game.IsOnLastRound && Game.IsOnLastPlayer)
 			{
-				<label for="deck">Deck: </label>
-				<select name="deck" id="deck" @onchange="ChangeDeck">
-					@foreach (Deck deck in AvailableDecks)
-					{
-						<option value="@deck.Id" selected="@string.Equals(Game.Deck?.Id, deck.Id)">@deck.Name</option>
-					}
-				</select>
-				<label for="nbPlayer">Nombre de joueurs maximum</label>
-				<input type="number" id="nbPlayer" @onchange="ChangePlayerCapacity" value="@Game.MaximumPlayerCount" />
-				<label for="nbRound">Nombre de phases</label>
-				<input type="number" id="nbRound" @onchange="ChangeRoundCount" value="@Game.MaximumRoundCount" />
-				<label for="timePerRound">Durée d'une manche (en secondes par joueur)</label>
-				<input type="number" id="timePerRound" @onchange="ChangeTimePerRound" value="@Game.TimePerRound" />
-				<button class="btn btn-primary" @onclick="StartGame">Lancer la partie</button>
+				<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
+				<button class="btn btn-primary" @onclick="ConcludeGame">Terminer la partie</button>
 			}
-			<h3>Liste des joueurs</h3>
-			<ul style="list-style-type: none">
-				@foreach (string name in Game.PlayerScores.Keys)
-				{
-					<li>@name</li>
-				}
-			</ul>
-			break;
-
-		case GameState.ENDED:
-			<h3>Deck: @Game.Deck?.Name</h3>
-			<div>
-				<table style="margin: auto">
-					<tr>
-						<th>Nom</th>
-						<th>Score</th>
-					</tr>
-					@foreach (KeyValuePair<string, long> scores in Game.PlayerScores)
-					{
-						<tr>
-							<td>@scores.Key</td>
-							<td>@scores.Value</td>
-						</tr>
-					}
-				</table>
-			</div>
-			break;
-
-		case GameState.RUNNING:
-			<h3>Deck: @Game.Deck?.Name</h3>
-			<span>Phase @Game.RoundNumber / @Game.MaximumRoundCount</span>
-			<div>
-				<table style="margin: auto">
-					<tr>
-						<th>Nom</th>
-						<th>Score</th>
-					</tr>
-					@foreach (KeyValuePair<string, long> scores in Game.PlayerScores)
-					{
-						<tr>
-							<td>@scores.Key</td>
-							<td>@scores.Value</td>
-						</tr>
-					}
-				</table>
-				<span>Joueur en cours: @Game.CurrentPlayer</span>
-				<span style="font-weight: bold">Cartes trouvées durant la phase</span>
-				<ul style="list-style-type: none">
-					@foreach (Card card in Game.FoundCards)
-					{
-						<li>@card.Text1</li>
-					}
-				</ul>
-				@if (string.Equals(Game.CurrentPlayer, Name) || string.Equals(Game.CurrentPlayer, Nickname))
-				{
-					@if (Game.IsTimeTicking && Game.HasStillCardsToFind)
-					{
-						<p>Temps restant: @Game.RemainingSeconds</p>
-						<p>@Game.CardToPlay?.Text1</p>
-						<button class="btn btn-cancel" @onclick="CardSkipped">Passer</button>
-						<button class="btn btn-accept" @onclick="CardFound">Valider</button>
-					}
-					else if (!Game.HasStillCardsToFind)
-					{
-						<p>Toutes les cartes ont été trouvées</p>
-						<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
-					}
-					else if (Game.RemainingSeconds == 0)
-					{
-						<p>Temps écoulé</p>
-						@if (Game.IsOnLastRound && Game.IsOnLastPlayer)
-						{
-							<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
-							<button class="btn btn-primary" @onclick="ConcludeGame">Terminer la partie</button>
-						}
-						else if (Game.IsOnLastPlayer)
-						{
-							<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
-							<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
-						}
-						else
-						{
-							<button class="btn btn-primary" @onclick="GoToNextPlayer">Passer au joueur suivant</button>
-						}
-					}
-					else
-					{
-						<button class="btn btn-primary" @onclick="StartTimer">Démarrer le timer</button>
-					}
-				}
-				else
-				{
-					@if (Game.IsTimeTicking)
-					{
-						<p>Temps restant: @Game.RemainingSeconds</p>
-					}
-					else if (Game.RemainingSeconds == 0)
-					{
-						<p>Temps écoulé</p>
-						@if (Game.IsOnLastRound && Game.IsOnLastPlayer)
-						{
-							<button class="btn btn-primary" @onclick="ConcludeGame">Terminer la partie</button>
-						}
-					}
-				}
-			</div>
-			break;
+			else if (Game.IsOnLastPlayer)
+			{
+				<button class="btn btn-primary" @onclick="PerformAnotherRound">Refaire une passe</button>
+				<button class="btn btn-primary" @onclick="GoToNextPhase">Passer à la phase suivante</button>
+			}
+			else
+			{
+				<button class="btn btn-primary" @onclick="GoToNextPlayer">Passer au joueur suivant</button>
+			}
+		}
+		else
+		{
+			<button class="btn btn-primary" @onclick="StartTimer">Démarrer le timer</button>
+		}
 	}
-}
+	else
+	{
+		@if (Game.IsTimeTicking)
+		{
+			<p>Temps restant: @Game.RemainingSeconds</p>
+		}
+		else if (Game.RemainingSeconds == 0)
+		{
+			<p>Temps écoulé</p>
+			@if (Game.IsOnLastRound && Game.IsOnLastPlayer)
+			{
+				<button class="btn btn-primary" @onclick="ConcludeGame">Terminer la partie</button>
+			}
+		}
+	}
+</div>

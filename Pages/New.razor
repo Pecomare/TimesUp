@@ -1,0 +1,9 @@
+﻿@page "/New"
+
+@inherits NewComponent
+
+<label for="nickname">Pseudo</label>
+<input type="text" id="nickname" @bind="Nickname" />
+<label for="gamename">Nom de la partie</label>
+<input type="text" id="gamename" @bind="GameName" />
+<button class="btn btn-primary" @onclick="CreateGame">Créer</button>

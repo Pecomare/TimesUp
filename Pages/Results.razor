@@ -1,0 +1,26 @@
+@page "/Results/{Guid:guid}/{Nickname}"
+
+@using Data
+
+@inherits LobbyComponent
+
+<h1>Partie @Game.Name (@Guid)</h1>
+<h2>Etat: @Game.State</h2>
+<h3>Joueurs: @Game.Players.Count / @Game.MaximumPlayerCount</h3>
+
+<h3>Deck: @Game.Deck?.Name</h3>
+<div>
+	<table style="margin: auto">
+		<tr>
+			<th>Nom</th>
+			<th>Score</th>
+		</tr>
+		@foreach (Player player in Game.Players)
+		{
+			<tr>
+				<td>@player.Name</td>
+				<td>@player.Score</td>
+			</tr>
+		}
+	</table>
+</div>
