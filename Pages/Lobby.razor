@@ -24,14 +24,12 @@
 			</tr>
 		}
 	</table>
-	<span>Joueur en cours: @Game.CurrentPlayer</span>
-	<span style="font-weight: bold">Cartes trouvées durant la phase</span>
-	<ul style="list-style-type: none">
-		@foreach (Card card in Game.FoundCards)
-		{
-			<li>@card.Text1</li>
-		}
-	</ul>
+	<span>Joueur en cours: @Game.CurrentPlayer?.Name</span><br />
+	<span style="font-weight: bold">Cartes trouvées durant la phase</span><br />
+	@foreach (Card card in Game.FoundCards)
+	{
+		<span>@card.Text1</span><br />
+	}
 	@if (string.Equals(Game.CurrentPlayer?.Name, Nickname))
 	{
 		@if (Game.IsTimeTicking && Game.HasStillCardsToFind)

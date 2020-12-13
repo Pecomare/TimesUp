@@ -89,10 +89,38 @@ namespace TimesUp
 
 			// Decks
 			var deckAnime = new Deck("Anime");
-			context.Add(deckAnime);
+            var deckJdg = new Deck("Joueur du Grenier");
+			context.AddRange(deckAnime, deckJdg);
 
-			// Cards
+			// Cards / Anime
 			context.Add(new Card(deckAnime, "Toaru Kagaku no Railgun (A Certain Scientific Railgun)"));
+            context.Add(new Card(deckAnime, "Toaru Majutsu no Index (A Certain Magical Index)"));
+            context.Add(new Card(deckAnime, "BanG Dream!"));
+            context.Add(new Card(deckAnime, "Love Live!"));
+            context.Add(new Card(deckAnime, "The iDOLM@STER"));
+            context.Add(new Card(deckAnime, "Gochuumon wa Usagi desuka ? (Is the Order a Rabbit ?)"));
+            context.Add(new Card(deckAnime, "Lucky Star"));
+            context.Add(new Card(deckAnime, "CLANNAD"));
+            context.Add(new Card(deckAnime, "Angel Beats"));
+            context.Add(new Card(deckAnime, "Charlotte"));
+            context.Add(new Card(deckAnime, "Kamisama ni Natta Hi (The Day I Became a God)"));
+
+            // Cards / Joueur du Grenier
+            context.Add(new Card(deckJdg, "Fisti"));
+            context.Add(new Card(deckJdg, "Pepito"));
+            context.Add(new Card(deckJdg, "David Goodenough"));
+            context.Add(new Card(deckJdg, "Alpha V"));
+            context.Add(new Card(deckJdg, "Jean-Michel Bruitage"));
+            context.Add(new Card(deckJdg, "Albus HumbleBundleDore"));
+            context.Add(new Card(deckJdg, "Henri PotDeBeurre"));
+            context.Add(new Card(deckJdg, "Georges Tusaisqui"));
+            context.Add(new Card(deckJdg, "Frangipanus"));
+            context.Add(new Card(deckJdg, "Enfant de juron"));
+            context.Add(new Card(deckJdg, "Jean-Michel Hardfist"));
+            context.Add(new Card(deckJdg, "Mondo Cinematic Universe"));
+            context.Add(new Card(deckJdg, "Gelganox"));
+            context.Add(new Card(deckJdg, "Shinwa"));
+            context.Add(new Card(deckJdg, "Archibald von Grenier"));
 
 			context.SaveChanges();
 		}
