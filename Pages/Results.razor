@@ -4,23 +4,31 @@
 
 @inherits LobbyComponent
 
-<h1>Partie @Game.Name (@Guid)</h1>
-<h2>Etat: @Game.State</h2>
-<h3>Joueurs: @Game.Players.Count / @Game.MaximumPlayerCount</h3>
+<div style="display: grid; grid-template-columns: 3fr 1fr">
+	<div>
+		<h1>Partie @Game.Name (@Guid)</h1>
+		<h2>Etat: @Game.State</h2>
+		<h3>Joueurs: @Game.Players.Count / @Game.MaximumPlayerCount</h3>
 
-<h3>Deck: @Game.Deck?.Name</h3>
-<div>
-	<table style="margin: auto">
-		<tr>
-			<th>Nom</th>
-			<th>Score</th>
-		</tr>
-		@foreach (Player player in Game.Players)
-		{
-			<tr>
-				<td>@player.Name</td>
-				<td>@player.Score</td>
-			</tr>
-		}
-	</table>
+		<h3>Deck: @Game.Deck?.Name</h3>
+		<div>
+			<table style="margin: auto">
+				<tr>
+					<th>Nom</th>
+					<th>Score</th>
+				</tr>
+				@foreach (Player player in Game.Players)
+				{
+					<tr>
+						<td>@player.Name</td>
+						<td>@player.Score</td>
+					</tr>
+				}
+			</table>
+		</div>
+	</div>
+	<div>
+		<Chat @bind-Game="Game" @bind-Game:event="GameChanged" 
+			@bind-Nickname="Nickname" @bind-Nickname:event="NicknameChanged" />
+	</div>
 </div>

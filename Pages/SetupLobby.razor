@@ -4,27 +4,35 @@
 
 @inherits SetupLobbyComponent
 
-@if (string.Equals(Nickname, @Game?.Owner))
-{
-	<label for="deck">Deck: </label>
-	<select name="deck" id="deck" @onchange="ChangeDeck">
-		@foreach (Deck deck in AvailableDecks)
+<div style="display: grid; grid-template-columns: 3fr 1fr">
+	<div>
+		@if (string.Equals(Nickname, @Game?.Owner))
 		{
-			<option value="@deck.Id" selected="@string.Equals(Game.Deck?.Id, deck.Id)">@deck.Name</option>
+			<label for="deck">Deck: </label>
+			<select name="deck" id="deck" @onchange="ChangeDeck">
+				@foreach (Deck deck in AvailableDecks)
+				{
+					<option value="@deck.Id" selected="@string.Equals(Game.Deck?.Id, deck.Id)">@deck.Name</option>
+				}
+			</select>
+			<label for="nbPlayer">Nombre de joueurs maximum</label>
+			<input type="number" id="nbPlayer" @onchange="ChangePlayerCapacity" value="@Game.MaximumPlayerCount" />
+			<label for="nbRound">Nombre de phases</label>
+			<input type="number" id="nbRound" @onchange="ChangeRoundCount" value="@Game.MaximumRoundCount" />
+			<label for="timePerRound">Durée d'une manche (en secondes par joueur)</label>
+			<input type="number" id="timePerRound" @onchange="ChangeTimePerRound" value="@Game.TimePerRound" />
+			<button class="btn btn-primary" @onclick="StartGame">Lancer la partie</button>
 		}
-	</select>
-	<label for="nbPlayer">Nombre de joueurs maximum</label>
-	<input type="number" id="nbPlayer" @onchange="ChangePlayerCapacity" value="@Game.MaximumPlayerCount" />
-	<label for="nbRound">Nombre de phases</label>
-	<input type="number" id="nbRound" @onchange="ChangeRoundCount" value="@Game.MaximumRoundCount" />
-	<label for="timePerRound">Durée d'une manche (en secondes par joueur)</label>
-	<input type="number" id="timePerRound" @onchange="ChangeTimePerRound" value="@Game.TimePerRound" />
-	<button class="btn btn-primary" @onclick="StartGame">Lancer la partie</button>
-}
-<h3>Liste des joueurs</h3>
-<ul style="list-style-type: none">
-	@foreach (Player player in Game.Players)
-	{
-		<li>@player.Name</li>
-	}
-</ul>
+		<h3>Liste des joueurs</h3>
+		<ul style="list-style-type: none">
+			@foreach (Player player in Game.Players)
+			{
+				<li>@player.Name</li>
+			}
+		</ul>
+	</div>
+	<div>
+		<Chat @bind-Game="Game" @bind-Game:event="GameChanged" 
+			@bind-Nickname="Nickname" @bind-Nickname:event="NicknameChanged" />
+	</div>
+</div>

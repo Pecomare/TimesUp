@@ -1,0 +1,70 @@
+@using System.Threading.Tasks
+@using EventAggregator.Blazor
+@using Microsoft.AspNetCore.Components
+@using TimesUp.Context
+@using TimesUp.Data
+
+@inject IEventAggregator _eventAggregator
+
+<div style="display: flex; flex-direction: column-reverse; position: absolute; bottom: 0; 
+	max-height: calc(100vh - 5rem); word-break: break-all; text-align: left">
+	<div style="display: grid; grid-template-columns: 1fr max-content">
+		<input type="text" @bind="Message" @oninput="OnInput" @onkeydown="OnKeyDown" />
+		<button class="btn btn-primary" @onclick="SendMessage">Envoyer</button>
+	</div>
+	<!-- TODO change overflow: clip to overflow: auto and find a solution 
+	to auto-snap scrollbar to the bottom when a new message arrives -->
+	<div style="overflow: clip; scroll-snap-type: block mandatory">
+		@foreach (ChatMessage message in Game.Chat)
+		{
+			<div style="@(message == Game.Chat.Last() ? "scroll-snap-align: end; scroll-snap-stop: always" : "")">
+				<span style="font-weight: bold">
+					[@message.PostDateTime.ToString("HH:mm:ss")] @message.Owner: 
+				</span>
+				@message.Message
+			</div>
+		}
+	</div>
+</div>
+
+@code
+{
+	[Parameter]
+	public Game Game { get; set; }
+	[Parameter]
+	public EventCallback<Game> GameChanged { get; set; }
+	[Parameter]
+	public string Nickname { get; set; }
+	[Parameter]
+	public EventCallback<string> NicknameChanged { get; set; }
+	
+	private string Message { get; set; }
+
+	private async Task OnInput(ChangeEventArgs e)
+	{
+		Message = e.Value.ToString();
+	}
+
+	private async Task OnKeyDown(KeyboardEventArgs e)
+	{
+		if (e.Key.Equals("Enter") 
+			&& !e.AltKey 
+			&& !e.CtrlKey 
+			&& !e.MetaKey
+			&& !e.ShiftKey)
+		{
+			await SendMessage(); 
+		}
+	}
+
+	private async Task SendMessage()
+	{
+		if (string.IsNullOrWhiteSpace(Message))
+		{
+			return;
+		}
+		Game.AddMessage(Message, Nickname);
+		Message = "";
+		await _eventAggregator.PublishAsync(new GameChangedMessage(Game));
+	}
+}

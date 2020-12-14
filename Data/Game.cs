@@ -26,6 +26,7 @@ namespace TimesUp.Data
 		public int TimePerRound { get; set; } = 60;
 		public int RemainingSeconds { get; private set; }
 		public bool IsTimeTicking { get; set; } = false;
+		public List<ChatMessage> Chat { get; private set; } = new();
 
 		public Player? CurrentPlayer => Players.ElementAtOrDefault(CurrentPlayerIndex);
 		public bool IsOnLastPlayer => CurrentPlayerIndex == Players.Count - 1;
@@ -248,6 +249,12 @@ namespace TimesUp.Data
 		public void DecrementTimer()
 		{
 			RemainingSeconds--;
+		}
+
+		public void AddMessage(string message, string owner)
+		{
+			Chat.Add(new ChatMessage(DateTime.Now, owner, message));
+			ModifiedDateTime = DateTime.Now;
 		}
 
 		#endregion
