@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TimesUp.Data
@@ -5,7 +6,7 @@ namespace TimesUp.Data
 	[Table("Card")]
 	public class Card
 	{
-		public int Id { get; set; }
+		public Guid Id { get; set; } = Guid.NewGuid();
 		public string Text1 { get; set; } = string.Empty;
 		public string Text2 { get; set; } = string.Empty;
 		public Deck? Deck { get; set; }

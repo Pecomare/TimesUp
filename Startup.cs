@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,28 +28,53 @@ namespace TimesUp
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+			DbContextOptionsBuilder<TimesUpContext> builder = new();
             switch (Configuration.GetSection("Connection")["DatabaseType"])
             {
 				case "InMemory":
 					services.AddDbContextFactory<TimesUpContext>(options =>
 						options.UseInMemoryDatabase("InMemory"));
-					SetupInMemoryDatabase();
+					builder.UseInMemoryDatabase("InMemory");
 					break;
                 case "SqlServer":
                     services.AddDbContextFactory<TimesUpContext>(options =>
 				        options.UseSqlServer(Configuration.GetConnectionString("SqlServerDatabase")));
+					builder.UseSqlServer(Configuration.GetConnectionString("SqlServerDatabase"));
                     break;
 
                 case "Postgres":
                     services.AddDbContextFactory<TimesUpContext>(options =>
 				        options.UseNpgsql(Configuration.GetConnectionString("PostgresDatabase")));
+					builder.UseNpgsql(Configuration.GetConnectionString("PostgresDatabase"));
                     break;
                 
                 case "Sqlite":
                     services.AddDbContextFactory<TimesUpContext>(options =>
 				        options.UseSqlite(Configuration.GetConnectionString("SqliteDatabase")));
+					builder.UseSqlite(Configuration.GetConnectionString("SqliteDatabase"));
                     break;
+
+				case "CosmosDb":
+					services.AddDbContextFactory<TimesUpContext>(options =>
+						options.UseCosmos(
+							Configuration.GetConnectionString("CosmosDbEndpoint")
+							, Configuration.GetConnectionString("CosmosDbAccountKey")
+							, Configuration.GetConnectionString("CosmosDbDatabase")));
+					builder.UseCosmos(
+						Configuration.GetConnectionString("CosmosDbEndpoint")
+						, Configuration.GetConnectionString("CosmosDbAccountKey")
+						, Configuration.GetConnectionString("CosmosDbDatabase"));
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException(
+						"DatabaseType invalid. Please specify one of these: InMemory, SqlServer, Postgres, Sqlite, CosmosDb");
             }
+
+			if (bool.TryParse(Configuration.GetSection("Connection")["ResetDatabase"], out bool reset) && reset)
+			{
+				SetupDatabase(new TimesUpContext(builder.Options));
+			}
 			
 			services.AddEventAggregator();
         }
@@ -81,48 +107,56 @@ namespace TimesUp
 			ConfigureGameCleaning();
         }
 
-		private void SetupInMemoryDatabase()
+		private async void SetupDatabase(TimesUpContext context)
 		{
-			TimesUpContext context = new TimesUpContext(new DbContextOptionsBuilder<TimesUpContext>()
-				.UseInMemoryDatabase("InMemory")
-				.Options);
+			await context.Database.EnsureDeletedAsync();
+			await context.Database.EnsureCreatedAsync();
+
+			if ((await context.GetDecksAsync()).Any())
+			{
+				return;
+			}
 
 			// Decks
 			var deckAnime = new Deck("Anime");
             var deckJdg = new Deck("Joueur du Grenier");
+
+			deckAnime.Cards = new List<Card>
+			{
+				new Card(deckAnime, "Toaru Kagaku no Railgun (A Certain Scientific Railgun)")
+				, new Card(deckAnime, "Toaru Majutsu no Index (A Certain Magical Index)")
+				, new Card(deckAnime, "BanG Dream!")
+				, new Card(deckAnime, "Love Live!")
+				, new Card(deckAnime, "The iDOLM@STER")
+				, new Card(deckAnime, "Gochuumon wa Usagi desuka ? (Is the Order a Rabbit ?)")
+				, new Card(deckAnime, "Lucky Star")
+				, new Card(deckAnime, "CLANNAD")
+				, new Card(deckAnime, "Angel Beats")
+            	, new Card(deckAnime, "Charlotte")
+            	, new Card(deckAnime, "Kamisama ni Natta Hi (The Day I Became a God)")
+			};
+			deckJdg.Cards = new List<Card>
+			{
+				new Card(deckJdg, "Fisti")
+				, new Card(deckJdg, "Pepito")
+            	, new Card(deckJdg, "David Goodenough")
+            	, new Card(deckJdg, "Alpha V")
+            	, new Card(deckJdg, "Jean-Michel Bruitage")
+            	, new Card(deckJdg, "Albus HumbleBundleDore")
+            	, new Card(deckJdg, "Henri PotDeBeurre")
+            	, new Card(deckJdg, "Georges Tusaisqui")
+            	, new Card(deckJdg, "Frangipanus")
+            	, new Card(deckJdg, "Enfant de juron")
+            	, new Card(deckJdg, "Jean-Michel Hardfist")
+            	, new Card(deckJdg, "Mondo Cinematic Universe")
+            	, new Card(deckJdg, "Gelganox")
+            	, new Card(deckJdg, "Shinwa")
+            	, new Card(deckJdg, "Archibald von Grenier")
+			};
+
 			context.AddRange(deckAnime, deckJdg);
 
-			// Cards / Anime
-			context.Add(new Card(deckAnime, "Toaru Kagaku no Railgun (A Certain Scientific Railgun)"));
-            context.Add(new Card(deckAnime, "Toaru Majutsu no Index (A Certain Magical Index)"));
-            context.Add(new Card(deckAnime, "BanG Dream!"));
-            context.Add(new Card(deckAnime, "Love Live!"));
-            context.Add(new Card(deckAnime, "The iDOLM@STER"));
-            context.Add(new Card(deckAnime, "Gochuumon wa Usagi desuka ? (Is the Order a Rabbit ?)"));
-            context.Add(new Card(deckAnime, "Lucky Star"));
-            context.Add(new Card(deckAnime, "CLANNAD"));
-            context.Add(new Card(deckAnime, "Angel Beats"));
-            context.Add(new Card(deckAnime, "Charlotte"));
-            context.Add(new Card(deckAnime, "Kamisama ni Natta Hi (The Day I Became a God)"));
-
-            // Cards / Joueur du Grenier
-            context.Add(new Card(deckJdg, "Fisti"));
-            context.Add(new Card(deckJdg, "Pepito"));
-            context.Add(new Card(deckJdg, "David Goodenough"));
-            context.Add(new Card(deckJdg, "Alpha V"));
-            context.Add(new Card(deckJdg, "Jean-Michel Bruitage"));
-            context.Add(new Card(deckJdg, "Albus HumbleBundleDore"));
-            context.Add(new Card(deckJdg, "Henri PotDeBeurre"));
-            context.Add(new Card(deckJdg, "Georges Tusaisqui"));
-            context.Add(new Card(deckJdg, "Frangipanus"));
-            context.Add(new Card(deckJdg, "Enfant de juron"));
-            context.Add(new Card(deckJdg, "Jean-Michel Hardfist"));
-            context.Add(new Card(deckJdg, "Mondo Cinematic Universe"));
-            context.Add(new Card(deckJdg, "Gelganox"));
-            context.Add(new Card(deckJdg, "Shinwa"));
-            context.Add(new Card(deckJdg, "Archibald von Grenier"));
-
-			context.SaveChanges();
+			await context.SaveChangesAsync();
 		}
 
 		private void ConfigureGameCleaning()

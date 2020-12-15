@@ -96,8 +96,8 @@ namespace TimesUp.Data
 			{
 				throw new InvalidOperationException("Cannot start a game twice.");
 			}
-			CardsToPlay = Deck.Cards.Shuffle();
-			Players = Players.Shuffle();
+			CardsToPlay = (List<Card>)Deck.Cards.Shuffle();
+			Players = (List<Player>)Players.Shuffle();
 			State = GameState.RUNNING;
 			RemainingSeconds = TimePerRound;
 			ModifiedDateTime = DateTime.Now;
@@ -224,7 +224,7 @@ namespace TimesUp.Data
 			}
 			RoundNumber++;
 			CurrentPlayerIndex = 0;
-			CardsToPlay = FoundCards.Shuffle();
+			CardsToPlay = (List<Card>)FoundCards.Shuffle();
 			FoundCards.Clear();
 			RemainingSeconds = TimePerRound;
 			ModifiedDateTime = DateTime.Now;

@@ -32,9 +32,9 @@ namespace TimesUp.Pages
 		public string? Nickname { get; set; }
 
 		public Game? Game { get; set; }
-		public List<Deck>? AvailableDecks { get; set; }
+		public List<Deck>? AvailableDecks { get; set; } = new();
 		
-		protected override void OnInitialized()
+		protected override async Task OnInitializedAsync()
 		{
 			if (Guid == null || string.IsNullOrWhiteSpace(Nickname))
 			{
@@ -71,7 +71,7 @@ namespace TimesUp.Pages
 			}
 			using (TimesUpContext context = DbFactory.CreateDbContext())
 			{
-				AvailableDecks = context.Decks.Include(deck => deck.Cards).ToList();
+				AvailableDecks = await context.GetDecksAsync();
 				Game.SetDeckIfNull(AvailableDecks.First());
 			}
 		}
@@ -80,10 +80,11 @@ namespace TimesUp.Pages
 
 		protected async void ChangeDeck(ChangeEventArgs e)
 		{
-			if (!int.TryParse(e.Value?.ToString(), out int id))
+			if (e.Value == null)
 			{
 				return;
 			}
+			Guid id = new(e.Value.ToString());
 			Deck? deck= AvailableDecks.Find(deck => deck.Id == id);
 			if (deck == null)
 			{
@@ -126,8 +127,8 @@ namespace TimesUp.Pages
 		protected async void StartGame()
 		{
 			Game.Start();
-			await _eventAggregator.PublishAsync(new GameChangedMessage(Game));
 			_navigationManager.NavigateTo($"/Game/{Game.Guid}/{Nickname}");
+			await _eventAggregator.PublishAsync(new GameChangedMessage(Game));
 		}
 
 		public async Task Refresh()

@@ -12,7 +12,7 @@ INSERT INTO Deck(Name) VALUES ('Toto'), ('Titi');
 -- Card --
 
 CREATE TABLE Card(
-	Id int IDENTITY PRIMARY KEY
+	Id GUID IDENTITY PRIMARY KEY
 	, DeckId int
 	, Text1 VARCHAR(64)
 	, Text2 VARCHAR(64)

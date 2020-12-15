@@ -6,10 +6,10 @@ namespace TimesUp.Extensions
 {
 	public static class Extensions
 	{
-		public static List<T> Shuffle<T>(this List<T> list)
+		public static ICollection<T> Shuffle<T>(this ICollection<T> collection)
 		{
 			Random random = new();
-			return list.OrderBy(c => random.Next()).ToList();
+			return collection.OrderBy(c => random.Next()).ToList();
 		}
 	}
 }
