@@ -8,7 +8,7 @@
 <label for="nickname">Pseudo</label>
 <input type="text" id="nickname" @bind="Nickname" />
 <label for="searchtext">Nom de la partie</label>
-<input type="text" id="searchtext" @bind="SearchText" />
+<input type="text" id="searchtext" @bind-value="SearchText" @bind-value:event="oninput" @onkeydown="OnKeyDown" />
 <button class="btn btn-primary" @onclick="SearchGame">Chercher</button>
 <div style="text-align: -webkit-center">
 	<table style="margin: auto">
@@ -19,7 +19,7 @@
 			<th>Etat</th>
 			<th></th>
 		</tr>
-		@foreach (Game game in ServerStatus.STATUS.OpenGames)
+		@foreach (Game game in Results)
 		{
 			<tr>
 				<td>@game.Guid</td>

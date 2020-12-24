@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventAggregator.Blazor;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using TimesUp.Context;
 using TimesUp.Data;
@@ -26,7 +27,7 @@ namespace TimesUp.Pages
 
 		public string Nickname { get; set; } = string.Empty;
 		public string SearchText { get; set; } = string.Empty;
-		public List<Game> Results { get; private set; }
+		public List<Game> Results { get; private set; } = new();
 		
 		protected override void OnInitialized()
 		{
@@ -35,6 +36,18 @@ namespace TimesUp.Pages
 		}
 
 #region Events
+
+		protected void OnKeyDown(KeyboardEventArgs e)
+		{
+			if (e.Key.Equals("Enter") 
+				&& !e.AltKey 
+				&& !e.CtrlKey 
+				&& !e.MetaKey
+				&& !e.ShiftKey)
+			{
+				SearchGame(); 
+			}
+		}
 
 		public void SearchGame()
 		{
