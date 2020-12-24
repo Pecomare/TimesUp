@@ -22,26 +22,26 @@ namespace TimesUp.Pages
 		private NavigationManager _navigationManager { get; set; }
 		[Inject]
 		private IDbContextFactory<TimesUpContext> DbFactory { get; set; }
-		#nullable enable
+		#nullable restore
 
 #endregion
 
 		[Parameter]
-		public Guid? Guid { get; set; }
+		public Guid Guid { get; set; }
 		[Parameter]
 		public string? Nickname { get; set; }
 
 		public Game? Game { get; set; }
-		public List<Deck>? AvailableDecks { get; set; } = new();
+		public List<Deck>? AvailableDecks { get; set; }
 		
 		protected override async Task OnInitializedAsync()
 		{
-			if (Guid == null || string.IsNullOrWhiteSpace(Nickname))
+			if (this.Guid == Guid.Empty || string.IsNullOrWhiteSpace(Nickname))
 			{
 				_navigationManager.NavigateTo("/Search");
 				return;
 			}
-			Game = ServerStatus.STATUS.GetGameById(Guid.Value);
+			Game = ServerStatus.STATUS.GetGameById(Guid);
 			if (Game == null)
 			{
 				_navigationManager.NavigateTo("/Search");
@@ -80,11 +80,13 @@ namespace TimesUp.Pages
 
 		protected async void ChangeDeck(ChangeEventArgs e)
 		{
-			if (e.Value == null)
+			if (Game == null || AvailableDecks == null || e.Value == null)
 			{
 				return;
 			}
+			#nullable disable
 			Guid id = new(e.Value.ToString());
+			#nullable restore
 			Deck? deck= AvailableDecks.Find(deck => deck.Id == id);
 			if (deck == null)
 			{
@@ -96,7 +98,7 @@ namespace TimesUp.Pages
 
 		protected async void ChangePlayerCapacity(ChangeEventArgs eventArgs)
 		{
-			if (!int.TryParse(eventArgs.Value?.ToString(), out int capacity))
+			if (Game == null || !int.TryParse(eventArgs.Value?.ToString(), out int capacity))
 			{
 				return;
 			}
@@ -106,7 +108,7 @@ namespace TimesUp.Pages
 
 		protected async void ChangeRoundCount(ChangeEventArgs eventArgs)
 		{
-			if (!int.TryParse(eventArgs.Value?.ToString(), out int maximumRoundCount))
+			if (Game == null || !int.TryParse(eventArgs.Value?.ToString(), out int maximumRoundCount))
 			{
 				return;
 			}
@@ -116,7 +118,7 @@ namespace TimesUp.Pages
 
 		protected async void ChangeTimePerRound(ChangeEventArgs eventArgs)
 		{
-			if (!int.TryParse(eventArgs.Value?.ToString(), out int timePerRound))
+			if (Game == null || !int.TryParse(eventArgs.Value?.ToString(), out int timePerRound))
 			{
 				return;
 			}
@@ -126,6 +128,10 @@ namespace TimesUp.Pages
 
 		protected async void StartGame()
 		{
+			if (Game == null)
+			{
+				return;
+			}
 			Game.Start();
 			_navigationManager.NavigateTo($"/Game/{Game.Guid}/{Nickname}");
 			await _eventAggregator.PublishAsync(new GameChangedMessage(Game));
@@ -141,6 +147,10 @@ namespace TimesUp.Pages
 
 		public async Task HandleAsync(GameChangedMessage message)
 		{
+			if (Game == null)
+			{
+				return;
+			}
 			if (Game.State == GameState.RUNNING)
 			{
 				_navigationManager.NavigateTo($"/Game/{Game.Guid}/{Nickname}");

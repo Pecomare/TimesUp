@@ -20,8 +20,8 @@ namespace TimesUp.Pages
 
 #endregion
 	
-		public string Nickname { get; set; }
-		public string GameName { get; set; }
+		public string? Nickname { get; set; }
+		public string? GameName { get; set; }
 
 		protected override void OnInitialized()
 		{

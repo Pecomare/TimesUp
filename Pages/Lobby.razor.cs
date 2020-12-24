@@ -32,7 +32,7 @@ namespace TimesUp.Pages
 		[Parameter]
 		public string? Nickname { get; set; }
 
-		public Game? Game { get; set; }
+		public Game Game { get; set; } = null!;
 
 		#region Initialization
 
@@ -43,12 +43,13 @@ namespace TimesUp.Pages
 				_navigationManager.NavigateTo("/Search");
 				return;
 			}
-			Game = ServerStatus.STATUS.GetGameById(Guid.Value);
-			if (Game == null)
+			Game? game = ServerStatus.STATUS.GetGameById(Guid.Value);
+			if (game == null)
 			{
 				_navigationManager.NavigateTo("/Search");
 				return;
 			}
+			Game = game;
 			if (!Game.IsPlayerInGame(Nickname))
 			{
 				_navigationManager.NavigateTo("/Search");
