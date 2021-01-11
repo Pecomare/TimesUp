@@ -3,7 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/nightly/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/nightly/sdk:6.0-buster-slim-amd64 AS build
 WORKDIR /src
 COPY ["TimesUp.csproj", "./"]
 RUN dotnet restore "TimesUp.csproj"
