@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -73,7 +76,7 @@ namespace TimesUp
 
 			if (bool.TryParse(Configuration.GetSection("Connection")["ResetDatabase"], out bool reset) && reset)
 			{
-				SetupDatabase(new TimesUpContext(builder.Options));
+				SetupDatabase(new TimesUpContext(builder.Options), Configuration.GetSection("Connection")["DatabaseContentFile"]);
 			}
 			
 			services.AddEventAggregator();
@@ -107,7 +110,7 @@ namespace TimesUp
 			ConfigureGameCleaning();
         }
 
-		private async void SetupDatabase(TimesUpContext context)
+		private static async void SetupDatabase(TimesUpContext context, string setupFilePath)
 		{
 			await context.Database.EnsureDeletedAsync();
 			await context.Database.EnsureCreatedAsync();
@@ -117,45 +120,18 @@ namespace TimesUp
 				return;
 			}
 
-			// Decks
-			var deckAnime = new Deck("Anime");
-            var deckJdg = new Deck("Joueur du Grenier");
+			string jsonText = File.ReadAllText(setupFilePath);
+			List<Deck>? decks = JsonSerializer.Deserialize<List<Deck>>(jsonText);
 
-			deckAnime.Cards = new List<Card>
+			if (decks == null)
 			{
-				new Card("Toaru Kagaku no Railgun (A Certain Scientific Railgun)")
-				, new Card("Toaru Majutsu no Index (A Certain Magical Index)")
-				, new Card("BanG Dream!")
-				, new Card("Love Live!")
-				, new Card("The iDOLM@STER")
-				, new Card("Gochuumon wa Usagi desuka ? (Is the Order a Rabbit ?)")
-				, new Card("Lucky Star")
-				, new Card("CLANNAD")
-				, new Card("Angel Beats")
-				, new Card("Charlotte")
-				, new Card("Kamisama ni Natta Hi (The Day I Became a God)")
-				, new Card("D4DJ: First Mix")
-			};
-			deckJdg.Cards = new List<Card>
-			{
-				new Card("Fisti")
-				, new Card("Pepito")
-				, new Card("David Goodenough")
-				, new Card("Alpha V")
-				, new Card("Jean-Michel Bruitage")
-				, new Card("Albus HumbleBundleDore")
-				, new Card("Henri PotDeBeurre")
-				, new Card("Georges Tusaisqui")
-				, new Card("Frangipanus")
-				, new Card("Enfant de juron")
-				, new Card("Jean-Michel Hardfist")
-				, new Card("Mondo Cinematic Universe")
-				, new Card("Gelganox")
-				, new Card("Shinwa")
-				, new Card("Archibald von Grenier")
-			};
+				throw new InvalidDataException($"No data found in file {setupFilePath}.");
+			}
 
-			context.AddRange(deckAnime, deckJdg);
+			foreach (Deck deck in decks)
+			{
+				context.Add(deck);
+			}
 
 			await context.SaveChangesAsync();
 		}

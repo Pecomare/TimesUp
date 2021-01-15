@@ -1,0 +1,41 @@
+[
+	{
+		"Name": "Animé",
+		"Cards": [
+			{ "Text": "Toaru Kagaku no Railgun (A Certain Scientific Railgun)" },
+			{ "Text": "Toaru Majutsu no Index (A Certain Magical Index)" },
+			{ "Text": "BanG Dream!" },
+			{ "Text": "Love Live!" },
+			{ "Text": "The iDOLM@STER" },
+			{ "Text": "Gochuumon wa Usagi desuka ? (Is the Order a Rabbit ?)" },
+			{ "Text": "Lucky Star" },
+			{ "Text": "CLANNAD" },
+			{ "Text": "Angel Beats" },
+			{ "Text": "Charlotte" },
+			{ "Text": "Kamisama ni Natta Hi (The Day I Became a God)" },
+			{ "Text": "D4DJ: First Mix" },
+			{ "Text": "Yuru Camp" },
+			{ "Text": "Non Non Biyori" }
+		]
+	},
+	{
+		"Name": "Joueur du Grenier",
+		"Cards": [
+			{ "Text": "Fisti" },
+			{ "Text": "Pepito" },
+			{ "Text": "David Goodenough" },
+			{ "Text": "Alpha V" },
+			{ "Text": "Jean-Michel Bruitage" },
+			{ "Text": "Albus HumbleBundleDore" },
+			{ "Text": "Henri PotDeBeurre" },
+			{ "Text": "Georges Tuseki" },
+			{ "Text": "Frangipanus" },
+			{ "Text": "Enfant de juron" },
+			{ "Text": "Jean-Michel Hardfist" },
+			{ "Text": "Mondo Cinematic Universe" },
+			{ "Text": "Gelganox" },
+			{ "Text": "Shinwa" },
+			{ "Text": "Archibald von Grenier" }
+		]
+	}
+]
