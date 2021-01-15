@@ -7,20 +7,15 @@ namespace TimesUp.Data
 	public class Card
 	{
 		public Guid Id { get; set; } = Guid.NewGuid();
-		public string Text1 { get; set; } = string.Empty;
-		public string Text2 { get; set; } = string.Empty;
-		public Deck? Deck { get; set; }
+		public string Text { get; set; } = string.Empty;
 
 		public Card()
 		{
 			
 		}
-
-		public Card(Deck? deck, string text)
+		public Card(string text)
 		{
-			Deck = deck;
-			Text1 = text;
-			Text2 = string.Empty;
+			Text = text;
 		}
 	}
 }

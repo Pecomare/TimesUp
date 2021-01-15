@@ -30,14 +30,14 @@
 			<span style="font-weight: bold">Cartes trouvées durant la phase</span><br />
 			@foreach (Card card in Game.FoundCards)
 			{
-				<span>@card.Text1</span><br />
+				<span>@card.Text</span><br />
 			}
 			@if (string.Equals(Game.CurrentPlayer?.Name, Nickname))
 			{
 				@if (Game.IsTimeTicking && Game.HasStillCardsToFind)
 				{
 					<p>Temps restant: @Game.RemainingSeconds</p>
-					<p>@Game.CardToPlay?.Text1</p>
+					<p>@Game.CardToPlay?.Text</p>
 					<button class="btn btn-cancel" @onclick="CardSkipped">Passer</button>
 					<button class="btn btn-accept" @onclick="CardFound">Valider</button>
 				}
