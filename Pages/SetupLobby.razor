@@ -4,36 +4,37 @@
 
 @inherits SetupLobbyComponent
 
-<div style="display: grid; grid-template-columns: 3fr 1fr">
-	<div>
-		@if (string.Equals(Nickname, @Game?.Owner))
-		{
-			<label for="deck">Deck: </label>
-			<select name="deck" id="deck" @onchange="ChangeDeck">
-				@if (AvailableDecks != null)
-				foreach (Deck deck in AvailableDecks)
-				{
-					<option value="@deck.Id" selected="@string.Equals(Game?.Deck?.Id, deck.Id)">@deck.Name</option>
-				}
-			</select>
-			<label for="nbPlayer">Nombre de joueurs maximum</label>
-			<input type="number" id="nbPlayer" @onchange="ChangePlayerCapacity" value="@Game?.MaximumPlayerCount" />
-			<label for="nbRound">Nombre de phases</label>
-			<input type="number" id="nbRound" @onchange="ChangeRoundCount" value="@Game?.MaximumRoundCount" />
-			<label for="timePerRound">Durée d'une manche (en secondes par joueur)</label>
-			<input type="number" id="timePerRound" @onchange="ChangeTimePerRound" value="@Game?.TimePerRound" />
-			<button class="btn btn-primary" @onclick="StartGame">Lancer la partie</button>
-		}
-		<h3>Liste des joueurs</h3>
-		<ul style="list-style-type: none">
+<div class="component">
+	<div style="display: grid;height: fit-content;">
+	@if (string.Equals(Nickname, @Game?.Owner))
+	{
+		<label for="deck">Deck: </label>
+		<select name="deck" id="deck" @onchange="ChangeDeck">
+			@if (AvailableDecks != null)
+			foreach (Deck deck in AvailableDecks)
+			{
+				<option value="@deck.Id" selected="@string.Equals(Game?.Deck?.Id, deck.Id)">@deck.Name</option>
+			}
+		</select>
+		<label for="nbPlayer">Nombre de joueurs maximum</label>
+		<input type="number" id="nbPlayer" @onchange="ChangePlayerCapacity" value="@Game?.MaximumPlayerCount" />
+		<label for="nbRound">Nombre de phases</label>
+		<input type="number" id="nbRound" @onchange="ChangeRoundCount" value="@Game?.MaximumRoundCount" />
+		<label for="timePerRound">Durée d'une manche (en secondes par joueur)</label>
+		<input type="number" id="timePerRound" @onchange="ChangeTimePerRound" value="@Game?.TimePerRound" />
+		<button style="grid-column: 1/3" class="btn btn-primary" @onclick="StartGame">Lancer la partie</button>
+	}
+		<h3 style="grid-column: 1/3">Liste des joueurs</h3>
+		<div style="grid-column: 1/3; list-style-type: none">
 			@if (Game != null)
 			foreach (Player player in Game.Players)
 			{
-				<li>@player.Name</li>
+				<div>@player.Name</div>
 			}
-		</ul>
+		</div>
 	</div>
-	<div>
+	<div style="word-break: break-all; text-align: left; border: 1px solid black; 
+	overflow: hidden; position: relative">
 		<Chat @bind-Game="Game" @bind-Game:event="GameChanged" 
 			@bind-Nickname="Nickname" @bind-Nickname:event="NicknameChanged" />
 	</div>

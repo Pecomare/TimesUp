@@ -51,6 +51,25 @@ a, .btn-link {
 
 /* Custom */
 
+.page {
+	height: 100vh;
+}
+
+.main {
+	height: calc(100% - 3.5rem);
+}
+
+.content {
+	height: 100%;
+}
+
+.component {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+	height: calc(100% - 2.2rem);
+	grid-template-rows: 1fr;
+}
+
 table {
 	text-align: center;
 	border: 1px solid black;
