@@ -1,0 +1,24 @@
+@page "/EditDeckList"
+
+@using Data
+
+@inherits EditDeckListComponent
+
+<button class="btn btn-primary" @onclick="CreateDeck">Créer un deck</button>
+
+<table style="margin: 8px auto">
+	<tr>
+		<th>Nom</th>
+		<th>Nombre de cartes</th>
+	</tr>
+	@foreach (Deck deck in Decks)
+	{
+		<tr>
+			<td>@deck.Name</td>
+			<td>@deck.Count</td>
+			<td>
+				<a href="/EditDeck/@deck.Id">Editer</a>
+			</td>
+		</tr>
+	}
+</table>

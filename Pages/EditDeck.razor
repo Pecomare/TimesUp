@@ -1,0 +1,30 @@
+@page "/EditDeck/{Guid:guid}"
+
+@using Data
+
+@inherits EditDeckComponent
+
+<h3>@Deck?.Name</h3>
+
+@if (Deck != null)
+{
+	<button class="btn btn-primary" @onclick="CreateCard">Ajouter une carte</button>
+	<button class="btn btn-accept" @onclick="SaveDeck">Enregistrer</button>
+	<button class="btn btn-cancel" @onclick="Cancel">Annuler</button>
+	<br />
+	<label for="newName">Nouveau nom</label>
+	<input type="text" style="margin-top: 8px" @bind="Deck.Name" />
+	<table>
+		@foreach (Card card in Deck.Cards)
+		{
+			<tr>
+				<td>
+					<input type="text" style="width: max-content" @bind="card.Text" />
+				</td>
+				<td>
+					<button class="btn btn-cancel" @onclick="() => RemoveCard(card)">Supprimer</button>
+				</td>
+			</tr>
+		}
+	</table>
+}
