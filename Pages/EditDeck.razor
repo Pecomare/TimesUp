@@ -14,17 +14,11 @@
 	<br />
 	<label for="newName">Nouveau nom</label>
 	<input type="text" style="margin-top: 8px" @bind="Deck.Name" />
-	<table>
+	<div style="display: grid; grid-template-columns: 1fr min-content; grid-gap: 4px">
 		@foreach (Card card in Deck.Cards)
 		{
-			<tr>
-				<td>
-					<input type="text" style="width: max-content" @bind="card.Text" />
-				</td>
-				<td>
-					<button class="btn btn-cancel" @onclick="() => RemoveCard(card)">Supprimer</button>
-				</td>
-			</tr>
+			<input type="text" @bind="card.Text" />
+			<button class="btn btn-cancel" @onclick="() => RemoveCard(card)">Supprimer</button>
 		}
-	</table>
+	</div>
 }
