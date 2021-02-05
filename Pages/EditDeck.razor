@@ -10,7 +10,7 @@
 {
 	<button class="btn btn-primary" @onclick="CreateCard">Ajouter une carte</button>
 	<button class="btn btn-accept" @onclick="SaveDeck">Enregistrer</button>
-	<button class="btn btn-cancel" @onclick="Cancel">Annuler</button>
+	<button class="btn btn-cancel" @onclick="Quit">Quitter</button>
 	<br />
 	<label for="newName">Nouveau nom</label>
 	<input type="text" style="margin-top: 8px" @bind="Deck.Name" />
@@ -20,5 +20,6 @@
 			<input type="text" @bind="card.Text" />
 			<button class="btn btn-cancel" @onclick="() => RemoveCard(card)">Supprimer</button>
 		}
-	</div>
+	 </div>
+	 <Popup @ref="SavePopup" />
 }

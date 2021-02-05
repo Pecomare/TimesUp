@@ -3,14 +3,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using TimesUp.Context;
 using TimesUp.Data;
+using TimesUp.Shared;
 
 namespace TimesUp.Pages
 {
 	public class EditDeckComponent : _BaseComponent
 	{
-		#nullable disable
+#nullable disable
+		protected Popup SavePopup { get; set; }
 		private TimesUpContext Context { get; set; }
-		#nullable restore
+#nullable restore
 		protected Deck? Deck { get; set; }
 
 		[Parameter]
@@ -45,7 +47,7 @@ namespace TimesUp.Pages
 			Deck.AddCard(card);
 		}
 
-		protected void SaveDeck()
+		protected async void SaveDeck()
 		{
 			if (Deck == null)
 			{
@@ -63,10 +65,12 @@ namespace TimesUp.Pages
 			}
 			Context.SaveChanges();
 
-			_eventAggregator.PublishAsync(new DeckAddedMessage(Deck));
+			SavePopup.ShowPopup("", Popup.PopupSeverity.Success);
+
+			await _eventAggregator.PublishAsync(new DeckAddedMessage(Deck));
 		}
 
-		protected void Cancel()
+		protected void Quit()
 		{
 			_navigationManager.NavigateTo("/EditDeckList");
 		}

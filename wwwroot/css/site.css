@@ -53,6 +53,7 @@ a, .btn-link {
 
 .page {
 	height: 100vh;
+	overflow: auto;
 }
 
 .main {
