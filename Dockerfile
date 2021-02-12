@@ -6,7 +6,7 @@ RUN dotnet restore "TimesUp.csproj"
 COPY . .
 
 WORKDIR "/src/."
-RUN dotnet publish "TimesUp.csproj" -c Release -o /app/publish --no-restore
+RUN dotnet publish "TimesUp.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-focal
 WORKDIR /app
