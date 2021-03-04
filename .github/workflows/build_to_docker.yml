@@ -30,7 +30,7 @@ jobs:
 
       - name: Infer Docker tag from branch name
         shell: bash
-        run: echo "##[set-output name=tag;]$(echo [[ ${{ steps.extract_branch.outputs.branch }} = master ]] && latest || ${{ steps.extract_branch.outputs.branch }})"
+        run: echo "##[set-output name=tag;]$(echo [[ ${{ steps.extract_branch.outputs.branch }} = master ]] && latest || sed 's/\//_/g' ${{ steps.extract_branch.outputs.branch }})"
         id: extract_tag
       
       - name: Build and push
