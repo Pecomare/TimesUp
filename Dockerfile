@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim-amd64 AS build
+FROM mcr.microsoft.com/dotnet/nightly/sdk:6.0-alpine-amd64 AS build
 WORKDIR /src
 
 COPY ["TimesUp.csproj", "./"]
