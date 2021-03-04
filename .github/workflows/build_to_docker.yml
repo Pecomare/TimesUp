@@ -2,7 +2,7 @@ name: CI to Docker Hub
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, dotnet6 ]
     
 jobs:
   build:
@@ -22,6 +22,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Infer Docker tag from branch name
+        shell: bash
+        run: echo "##[set-output name=tag;]$(echo [[ ${{ steps.extract_branch.output.branch }} = master ]] && latest || ${{ steps.extract_branch.output.branch }})"
+        id: extract_tag
       
       - name: Build and push
         id: docker_build
@@ -30,5 +40,5 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: pecomare/timesup:latest
+          tags: pecomare/timesup:${{ steps.extract_tag.output.tag }}
           platforms: linux/amd64, linux/arm64, linux/arm/v7
