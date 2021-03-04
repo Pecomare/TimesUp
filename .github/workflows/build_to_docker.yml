@@ -30,7 +30,7 @@ jobs:
 
       - name: Infer Docker tag from branch name
         shell: bash
-        run: echo "##[set-output name=tag;]$(echo [[ ${{ steps.extract_branch.output.branch }} = master ]] && latest || ${{ steps.extract_branch.output.branch }})"
+        run: echo "##[set-output name=tag;]$(echo [[ ${{ steps.extract_branch.outputs.branch }} = master ]] && latest || ${{ steps.extract_branch.outputs.branch }})"
         id: extract_tag
       
       - name: Build and push
@@ -40,5 +40,5 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: pecomare/timesup:${{ steps.extract_tag.output.tag }}
+          tags: pecomare/timesup:${{ steps.extract_tag.outputs.tag }}
           platforms: linux/amd64, linux/arm64, linux/arm/v7
